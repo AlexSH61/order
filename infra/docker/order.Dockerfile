@@ -3,4 +3,4 @@ RUN  mkdir app
 COPY go.mod ./
 COPY go.sum ./
 WORKDIR /app
-CMD [ "CMD" ]
+CMD [ "app" ]
