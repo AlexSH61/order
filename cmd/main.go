@@ -1,13 +1,21 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 
 	"github.com/AlexSH61/order/internal/logger"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/pressly/goose/v3"
 	"go.uber.org/zap"
 )
+
+type config struct {
+	Env            string
+	Goose_Driver   string `envconfig:GOOSE_DRIVER`
+	Goose_DBstring string `envconfig:GOOSE_DBSTRING`
+}
 
 func main() {
 	log, err := logger.NewLogger()
@@ -31,5 +39,17 @@ func run(log *zap.SugaredLogger) error {
 	}
 	log.Infow("startup", "STATUS!", "OK")
 	log.Infow("cfg", "ENV", cfg.Env)
+
+	db, err := sql.Open(cfg.Goose_Driver, cfg.Goose_DBstring)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	if err := db.Ping(); err != nil {
+		return err
+	}
+	if err := goose.Up(db, "internal/migrations/"); err != nil {
+		return err
+	}
 	return nil
 }

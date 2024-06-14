@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+    db_order: 
+      image: postgres:14
+      container_name: order_db
+      environment:
+      - POSTGRES_USER=user_order
+      - POSTGRES_PASSWORD=password1234
+      ports:
+      - "54321:5432"
+      volumes:
+      - /Users/aleksandr/eshop/order/db/data:/var/lib/postgresql/data

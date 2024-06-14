@@ -1,3 +1,5 @@
+GOOSE_DRIVER := "postgres"
+GOOSE_DBSTRING := "host=localhost port=54320 user=aleksandr password=pwd1234 dbname=db_order "
 SHELL := /bin/bash
 KIND := kindest/node:v1.29.1
 KIND_CLUSTER := shop-cluster
@@ -7,6 +9,7 @@ VERSION 		:= 0.0.1
 SERVICE_IMAGE 	:= $(BASE_IMAGE_NAME)/$(SERVICE_NAME):$(VERSION)
 NAMESPACE	:= shop-system
 APP := order
+
 img: 
 	docker build \
 		-f infra/docker/order.Dockerfile \
@@ -30,3 +33,12 @@ dev-apply:
 
 dev-log:
 	kubectl logs --namespace=$(NAMESPACE) -l app=$(APP) --all-containers=true -f --tail=10
+
+migrate-up:
+	@goose -dir internal/migrations_sql $(GOOSE_DRIVER) $(GOOSE_DBSTRING) up
+	
+migrate-down:
+	@goose -dir internal/migrations_sql $(GOOSE_DRIVER) $(GOOSE_DBSTRING) down
+
+show-users-table:
+	@docker exec -it order_db psql -U user_order
